@@ -1,0 +1,9 @@
+<library path="arduino_arm_hardware">
+  <class name="arduino_arm_hardware/ArduinoArmHardware"
+         type="arduino_arm_hardware.arduino_arm_hardware.ArduinoArmHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      ROS 2 control hardware interface for Arduino Mega RAMPS 1.4.
+    </description>
+  </class>
+</library>

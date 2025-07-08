@@ -1,0 +1,20 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arduino_arm_controller:
+      type: position_controllers/JointGroupPositionController
+
+arduino_arm_controller:
+  ros__parameters:
+    joints:
+      - joint_base
+      - joint_shoulder
+      - joint_elbow
+      - joint_wrist1
+      - joint_wrist2
+    # You might need to add more parameters here depending on your controller needs,
+    # e.g., PID gains if you were doing velocity/effort control.

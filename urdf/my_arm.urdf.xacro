@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<robot name="my_arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Define a base link -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.05"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.05"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <!-- Define a generic joint macro for easy creation -->
+  <xacro:macro name="arm_joint" params="prefix parent_link child_link origin_xyz origin_rpy joint_type">
+    <joint name="${prefix}_joint" type="${joint_type}">
+      <parent link="${parent_link}"/>
+      <child link="${child_link}"/>
+      <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+      <axis xyz="0 0 1"/> <!-- For revolute joints, specify axis of rotation -->
+      <limit lower="-${pi/2}" upper="${pi/2}" effort="100" velocity="10"/> <!-- Adjust limits as needed -->
+    </joint>
+
+    <link name="${child_link}">
+      <visual>
+        <geometry>
+          <cylinder radius="0.02" length="0.1"/>
+        </geometry>
+        <material name="green">
+          <color rgba="0 1 0 1"/>
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.02" length="0.1"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" izz="0.0001"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- Define your arm's joints and links here -->
+  <!-- These joint names MUST match the 'joint_names' array in your Arduino sketch -->
+  <xacro:arm_joint prefix="joint_base" parent_link="base_link" child_link="link_shoulder" origin_xyz="0 0 0.075" origin_rpy="0 0 0" joint_type="revolute"/>
+  <xacro:arm_joint prefix="joint_shoulder" parent_link="link_shoulder" child_link="link_elbow" origin_xyz="0 0 0.1" origin_rpy="0 0 0" joint_type="revolute"/>
+  <xacro:arm_joint prefix="joint_elbow" parent_link="link_elbow" child_link="link_wrist1" origin_xyz="0 0 0.1" origin_rpy="0 0 0" joint_type="revolute"/>
+  <xacro:arm_joint prefix="joint_wrist1" parent_link="link_wrist1" child_link="link_wrist2" origin_xyz="0 0 0.05" origin_rpy="0 0 0" joint_type="revolute"/>
+  <xacro:arm_joint prefix="joint_wrist2" parent_link="link_wrist2" child_link="link_gripper" origin_xyz="0 0 0.05" origin_rpy="0 0 0" joint_type="revolute"/>
+
+  <link name="link_gripper">
+    <visual>
+      <geometry>
+        <box size="0.03 0.03 0.03"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.03 0.03 0.03"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" izz="0.00001"/>
+    </inertial>
+  </link>
+
+  <!-- ROS 2 Control Hardware Interface -->
+  <ros2_control name="ArduinoArmHardware" type="system">
+    <hardware>
+      <!-- This 'type' attribute should match the class name of your hardware interface plugin -->
+      <plugin>arduino_arm_hardware/ArduinoArmHardware</plugin>
+      <!-- Parameters for your hardware interface -->
+      <param name="serial_port">/dev/ttyACM0</param> <!-- Adjust to your Arduino's port -->
+      <param name="baud_rate">115200</param>
+      <param name="num_joints">5</param>
+      <!-- Add parameters for steps per unit (e.g., steps per radian) for each joint -->
+      <param name="steps_per_unit_0">200.0</param> <!-- Example: 200 steps per radian for joint 0 -->
+      <param name="steps_per_unit_1">200.0</param>
+      <param name="steps_per_unit_2">200.0</param>
+      <param name="steps_per_unit_3">200.0</param>
+      <param name="steps_per_unit_4">200.0</param>
+    </hardware>
+
+    <!-- Define each joint and its interfaces -->
+    <joint name="joint_base">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_shoulder">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_elbow">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_wrist1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="joint_wrist2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <!-- Add more joints if you have them -->
+  </ros2_control>
+
+</robot>
