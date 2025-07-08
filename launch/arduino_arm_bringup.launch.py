@@ -8,6 +8,7 @@ from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, 
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -38,21 +39,19 @@ def generate_launch_description():
         )
     )
 
-    # Robot State Publisher node
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[{"robot_description": LaunchConfiguration("robot_description_content")}],
+        parameters=[{"robot_description": ParameterValue(LaunchConfiguration("robot_description_content"), value_type=str)}],
         output="screen",
     )
 
-    # Controller Manager node
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
             LaunchConfiguration("controllers_file"),
-            {"robot_description": LaunchConfiguration("robot_description_content")}
+            {"robot_description": ParameterValue(LaunchConfiguration("robot_description_content"), value_type=str)}
         ],
         output="screen",
     )
